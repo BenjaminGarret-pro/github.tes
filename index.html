@@ -1,588 +1,615 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Benjamin Garret | Portfolio L'Oréal</title>
-    
-    <style>
-        /* --- STYLE DE BASE --- */
-        :root {
-            --bg-color: #000000;
-            --text-main: #f5f5f7;
-            --text-muted: #86868b;
-            --accent: #2997ff;
-            --loreal-accent: #b4975a;
-            --card-bg: rgba(30, 30, 32, 0.7);
-            --card-border: rgba(255, 255, 255, 0.1);
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            overflow-x: hidden;
-            perspective: 1000px;
-        }
-
-        /* --- BARRE DE PROGRESSION --- */
-        #progress-container {
-            position: fixed; top: 0; left: 0; width: 100%; height: 60px;
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            z-index: 3000; display: flex; align-items: center; padding: 0 40px;
-            border-bottom: 1px solid var(--card-border);
-        }
-        #progress-bar { position: absolute; bottom: 0; left: 0; height: 2px; background: var(--accent); width: 0%; transition: width 0.1s ease-out; }
-        #narrative-text { color: var(--text-muted); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; }
-
-        /* --- LAYOUT GÉNÉRAL --- */
-        .section { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 120px 20px; position: relative; }
-        .section-title { font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 800; margin-bottom: 80px; text-align: center; background: linear-gradient(180deg, #fff 0%, #777 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 40px; width: 100%; max-width: 1200px; perspective: 2000px; }
-
-        /* Cartes interactives */
-        .glass-card {
-            background: var(--card-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--card-border); border-radius: 24px; padding: 40px;
-            transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease; position: relative; overflow: hidden;
-        }
-        .glass-card::before { content: ''; position: absolute; top: 0; left: -150%; width: 50%; height: 100%; background: linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent); transform: skewX(-25deg); transition: 0.6s ease; }
-        .glass-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 20px 40px rgba(0,0,0,0.6); border-color: rgba(255,255,255,0.25); }
-        .glass-card:hover::before { left: 150%; }
-
-        /* --- HERO --- */
-        #hero-content { display: flex; flex-direction: column; align-items: center; text-align: center; transition: transform 0.1s ease-out; transform-style: preserve-3d; }
-
-        /* Indicateur de scroll animé */
-        .scroll-indicator {
-            margin-top: 50px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            cursor: pointer;
-            transition: opacity 0.3s ease, color 0.3s ease;
-            opacity: 0.8;
-        }
-        .scroll-indicator:hover {
-            opacity: 1;
-            color: #fff;
-        }
-        .scroll-arrow {
-            width: 16px;
-            height: 16px;
-            border-right: 2px solid var(--loreal-accent);
-            border-bottom: 2px solid var(--loreal-accent);
-            transform: rotate(45deg);
-            animation: bounce 2s infinite;
-        }
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0) rotate(45deg); }
-            40% { transform: translateY(-12px) rotate(45deg); }
-            60% { transform: translateY(-6px) rotate(45deg); }
-        }
-
-        /* --- TIMELINE --- */
-        .timeline-container { position: relative; max-width: 1000px; width: 100%; margin: 0 auto; padding: 40px 0;}
-        .timeline-container::after { content: ''; position: absolute; width: 2px; background: var(--card-border); top: 0; bottom: 0; left: 50%; margin-left: -1px; }
-        .time-item { position: relative; width: 50%; padding: 0 40px; margin-bottom: 80px; }
-        .time-left { left: 0; text-align: right; }
-        .time-right { left: 50%; }
-        .time-item::after { content: ''; position: absolute; width: 16px; height: 16px; background-color: var(--bg-color); border: 3px solid var(--accent); top: 30px; border-radius: 50%; z-index: 1; }
-        .time-left::after { right: -9px; }
-        .time-right::after { left: -9px; }
-        
-        .date { color: var(--accent); font-weight: 700; font-size: 0.9rem; margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase; }
-        .loreal-date { color: var(--loreal-accent); }
-        .title { font-size: 1.5rem; color: #fff; margin-bottom: 5px; font-weight: 600; }
-        .subtitle { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 15px; }
-        .desc { color: #ccc; line-height: 1.6; font-size: 1.05rem; }
-        
-        .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
-        .time-left .tags { justify-content: flex-end; }
-        .tag { background: rgba(255,255,255,0.05); padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; border: 1px solid var(--card-border); transition: 0.3s ease; }
-        .tag:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.4); }
-
-        /* --- SCROLLYTELLING BIOPLASTIA --- */
-        .pin-wrap { height: 400vh; position: relative; width: 100vw; margin-left: calc(-50vw + 50%); background-color: #000; z-index: 100; }
-        .sticky-container { position: sticky; top: 0; height: 100vh; width: 100%; overflow: hidden; display: flex; align-items: center; justify-content: center; transform-origin: center center; }
-        .bio-split-layout { display: flex; width: 100%; max-width: 1400px; height: 100vh; align-items: center; justify-content: center; gap: 6vw; padding: 5vw; }
-        .bio-image-side { flex: 0 0 40%; height: 80vh; border-radius: 30px; overflow: hidden; position: relative; box-shadow: 0 30px 60px rgba(0,0,0,0.8); border: 1px solid var(--card-border); opacity: 0; transform: scale(0.9); }
-        .bio-image-side img { width: 100%; height: 100%; object-fit: cover; object-position: center 15%; }
-        .bio-text-side { flex: 1; display: flex; flex-direction: column; justify-content: center; text-align: left; }
-        
-        .bio-title-logo { width: 100%; max-width: 350px; margin-bottom: 20px; opacity: 0; transform: translateY(50px); filter: drop-shadow(0px 10px 10px rgba(0,0,0,0.5)); }
-        
-        .bio-details { opacity: 0; transform: translateY(50px); }
-        .award-gold { font-size: 1.1rem; color: var(--loreal-accent); font-weight: 600; margin: 15px 0; padding: 15px 20px; background: rgba(180, 151, 90, 0.1); border-left: 4px solid var(--loreal-accent); border-radius: 0 15px 15px 0; }
-
-        /* Boutons d'action */
-        .bio-buttons { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 25px; }
-        .btn-action {
-            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-            padding: 12px 25px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 30px; color: #fff; font-size: 0.95rem; font-weight: 600;
-            text-decoration: none; position: relative; z-index: 500; cursor: pointer;
-            transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease; width: fit-content;
-        }
-        .btn-action svg { fill: currentColor; width: 18px; height: 18px; pointer-events: none; }
-        .btn-action:hover { background: #fff; color: #000; box-shadow: 0 10px 20px rgba(255,255,255,0.2); }
-        
-        .btn-linkedin { background: #0077b5; border-color: #0077b5; font-size: 1.1rem; padding: 15px 30px; margin-top: 20px;}
-        .btn-linkedin:hover { background: #005582; color: #fff; border-color: #005582; box-shadow: 0 10px 20px rgba(0, 119, 181, 0.4); }
-
-        /* --- MINIATURES PHOTOS (GÉNÉRALISÉ) --- */
-        .photo-thumbnails {
-            display: flex; gap: 15px; margin-top: 15px; flex-wrap: wrap;
-        }
-        /* Aligner les photos selon le côté de la timeline */
-        .time-left .photo-thumbnails { justify-content: flex-end; }
-        .time-right .photo-thumbnails { justify-content: flex-start; }
-        .stack-card .photo-thumbnails { justify-content: flex-start; }
-        
-        .photo-link { text-decoration: none; display: block; }
-        .photo-thumb {
-            width: 80px; height: 80px; object-fit: cover; border-radius: 12px; cursor: pointer;
-            border: 2px solid rgba(255,255,255,0.1); transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5); background-color: #222;
-        }
-        .photo-link:hover .photo-thumb { 
-            transform: scale(1.1) translateY(-5px); 
-            border-color: var(--loreal-accent); 
-            box-shadow: 0 10px 25px rgba(180, 151, 90, 0.4); 
-        }
-
-        /* --- SCROLLYTELLING APTITUDES (STACKING CARDS) --- */
-        .pin-wrap-stack { height: 400vh; position: relative; width: 100vw; margin-left: calc(-50vw + 50%); background: radial-gradient(circle at center, #111 0%, #000 70%); z-index: 100; border-top: 1px solid var(--card-border); border-bottom: 1px solid var(--card-border); }
-        .sticky-stack { position: sticky; top: 0; height: 100vh; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; perspective: 1500px; }
-        .stack-title { font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 800; background: linear-gradient(180deg, #fff, #777); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 40px; position: relative; z-index: 20; opacity: 0; transform: translateY(-50px); transition: all 0.5s ease; }
-        .stack-container { position: relative; width: 100%; max-width: 800px; height: 60vh; display: flex; justify-content: center; align-items: center; }
-        .stack-card { position: absolute; width: 90%; max-width: 650px; height: auto; padding: 40px 50px; background: rgba(25, 25, 28, 0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 30px; box-shadow: 0 30px 60px rgba(0,0,0,0.8); opacity: 0; transform: translateY(100vh) scale(0.8); will-change: transform, opacity, filter; text-align: left; }
-        .stack-icon { font-size: 2.5rem; margin-bottom: 15px; }
-        .stack-card-title { font-size: 1.8rem; color: #fff; margin-bottom: 20px; font-weight: 700; }
-        .stack-list { list-style: none; padding: 0; margin: 0; text-align: left; display: inline-block; width: 100%; }
-        .stack-list li { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 15px; line-height: 1.6; }
-        .stack-list strong { color: #fff; }
-
-        /* --- ANIMATIONS CSS NATIVES GLOBALES --- */
-        .reveal { opacity: 0; filter: blur(10px); transition: all 1s cubic-bezier(0.25, 0.1, 0.25, 1); }
-        .reveal.zoom-in { transform: scale(0.7) translateY(50px); }
-        .reveal.slide-up { transform: translateY(100px); }
-        .reveal.flip-left { transform: perspective(1000px) rotateY(-30deg) translateX(-100px); }
-        .reveal.flip-right { transform: perspective(1000px) rotateY(30deg) translateX(100px); }
-        .reveal.formation-left, .reveal.formation-right { transition: all 1.2s cubic-bezier(0.2, 0.9, 0.1, 1.1); opacity: 0; filter: blur(20px); }
-        .reveal.formation-left { transform: perspective(2000px) rotateY(-40deg) rotateX(15deg) translateX(-200px) translateZ(-500px) translateY(100px); transform-origin: center right; }
-        .reveal.formation-right { transform: perspective(2000px) rotateY(40deg) rotateX(15deg) translateX(200px) translateZ(-500px) translateY(100px); transform-origin: center left; }
-        .reveal.formation-left.active, .reveal.formation-right.active, .reveal.active { opacity: 1; filter: blur(0); transform: perspective(2000px) rotateY(0) rotateX(0) translateX(0) translateZ(0) translateY(0) scale(1); }
-
-        /* Responsive */
-        @media screen and (max-width: 900px) {
-            .bio-split-layout { flex-direction: column; height: auto; min-height: 100vh; justify-content: center; gap: 30px; padding: 20px; }
-            .bio-image-side { width: 100%; height: 45vh; flex: none; }
-            .bio-text-side { text-align: center; align-items: center; }
-            .bio-title-logo { margin: 0 auto 20px auto; }
-            .award-gold { text-align: left; }
-            .reveal.formation-left, .reveal.formation-right { transform: perspective(1000px) translateY(100px) scale(0.9); }
-            .stack-card { padding: 30px 20px; width: 95%; text-align: center; }
-            .stack-card-title { font-size: 1.5rem; }
-            .stack-list li { font-size: 1rem; }
-            .bio-buttons { justify-content: center; }
-            .stack-card .photo-thumbnails { justify-content: center; }
-            .time-left .photo-thumbnails, .time-right .photo-thumbnails { justify-content: center; }
-        }
-        @media screen and (max-width: 768px) {
-            .timeline-container::after { left: 20px; }
-            .time-item { width: 100%; padding-left: 50px; padding-right: 0; text-align: left; }
-            .time-right { left: 0; }
-            .time-left::after, .time-right::after { left: 11px; }
-            .time-left .tags { justify-content: flex-start; }
-            .bio-text-side .tags { justify-content: center; }
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benjamin Garret | Portfolio L'Oréal</title>
+   
+    <style>
+        /* --- STYLE DE BASE --- */
+        :root {
+            --bg-color: #000000;
+            --text-main: #f5f5f7;
+            --text-muted: #86868b;
+            --accent: #2997ff;
+            --loreal-accent: #b4975a;
+            --card-bg: rgba(30, 30, 32, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+        }
+ 
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+            perspective: 1000px;
+        }
+ 
+        /* --- BARRE DE PROGRESSION --- */
+        #progress-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 60px;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            z-index: 3000; display: flex; align-items: center; padding: 0 40px;
+            border-bottom: 1px solid var(--card-border);
+        }
+        #progress-bar { position: absolute; bottom: 0; left: 0; height: 2px; background: var(--accent); width: 0%; transition: width 0.1s ease-out; }
+        #narrative-text { color: var(--text-muted); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; }
+ 
+        /* --- LAYOUT GÉNÉRAL --- */
+        .section { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 120px 20px; position: relative; }
+        .section-title { font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 800; margin-bottom: 80px; text-align: center; background: linear-gradient(180deg, #fff 0%, #777 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 40px; width: 100%; max-width: 1200px; perspective: 2000px; }
+ 
+        /* Cartes interactives */
+        .glass-card {
+            background: var(--card-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border); border-radius: 24px; padding: 40px;
+            transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease; position: relative; overflow: hidden;
+        }
+        .glass-card::before { content: ''; position: absolute; top: 0; left: -150%; width: 50%; height: 100%; background: linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent); transform: skewX(-25deg); transition: 0.6s ease; }
+        .glass-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 20px 40px rgba(0,0,0,0.6); border-color: rgba(255,255,255,0.25); }
+        .glass-card:hover::before { left: 150%; }
+ 
+        /* --- HERO --- */
+        #hero-content { display: flex; flex-direction: column; align-items: center; text-align: center; transition: transform 0.1s ease-out; transform-style: preserve-3d; }
+ 
+        /* Indicateur de scroll animé */
+        .scroll-indicator {
+            margin-top: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: opacity 0.3s ease, color 0.3s ease;
+            opacity: 0.8;
+        }
+        .scroll-indicator:hover {
+            opacity: 1;
+            color: #fff;
+        }
+        .scroll-arrow {
+            width: 16px;
+            height: 16px;
+            border-right: 2px solid var(--loreal-accent);
+            border-bottom: 2px solid var(--loreal-accent);
+            transform: rotate(45deg);
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0) rotate(45deg); }
+            40% { transform: translateY(-12px) rotate(45deg); }
+            60% { transform: translateY(-6px) rotate(45deg); }
+        }
+ 
+        /* --- TIMELINE --- */
+        .timeline-container { position: relative; max-width: 1000px; width: 100%; margin: 0 auto; padding: 40px 0;}
+        .timeline-container::after { content: ''; position: absolute; width: 2px; background: var(--card-border); top: 0; bottom: 0; left: 50%; margin-left: -1px; }
+        .time-item { position: relative; width: 50%; padding: 0 40px; margin-bottom: 80px; }
+        .time-left { left: 0; text-align: right; }
+        .time-right { left: 50%; }
+        .time-item::after { content: ''; position: absolute; width: 16px; height: 16px; background-color: var(--bg-color); border: 3px solid var(--accent); top: 30px; border-radius: 50%; z-index: 1; }
+        .time-left::after { right: -9px; }
+        .time-right::after { left: -9px; }
+       
+        .date { color: var(--accent); font-weight: 700; font-size: 0.9rem; margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase; }
+        .loreal-date { color: var(--loreal-accent); }
+        .title { font-size: 1.5rem; color: #fff; margin-bottom: 5px; font-weight: 600; }
+        .subtitle { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 15px; }
+        .desc { color: #ccc; line-height: 1.6; font-size: 1.05rem; }
+       
+        .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+        .time-left .tags { justify-content: flex-end; }
+        .tag { background: rgba(255,255,255,0.05); padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; border: 1px solid var(--card-border); transition: 0.3s ease; }
+        .tag:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.4); }
+ 
+        /* --- SCROLLYTELLING BIOPLASTIA --- */
+        .pin-wrap { height: 400vh; position: relative; width: 100vw; margin-left: calc(-50vw + 50%); background-color: #000; z-index: 100; }
+        .sticky-container { position: sticky; top: 0; height: 100vh; width: 100%; overflow: hidden; display: flex; align-items: center; justify-content: center; transform-origin: center center; }
+        .bio-split-layout { display: flex; width: 100%; max-width: 1400px; height: 100vh; align-items: center; justify-content: center; gap: 6vw; padding: 5vw; }
+        .bio-image-side { flex: 0 0 40%; height: 80vh; border-radius: 30px; overflow: hidden; position: relative; box-shadow: 0 30px 60px rgba(0,0,0,0.8); border: 1px solid var(--card-border); opacity: 0; transform: scale(0.9); }
+        .bio-image-side img { width: 100%; height: 100%; object-fit: cover; object-position: center 15%; }
+        .bio-text-side { flex: 1; display: flex; flex-direction: column; justify-content: center; text-align: left; }
+       
+        .bio-title-logo { width: 100%; max-width: 350px; margin-bottom: 20px; opacity: 0; transform: translateY(50px); filter: drop-shadow(0px 10px 10px rgba(0,0,0,0.5)); }
+       
+        .bio-details { opacity: 0; transform: translateY(50px); }
+        .award-gold { font-size: 1.1rem; color: var(--loreal-accent); font-weight: 600; margin: 15px 0; padding: 15px 20px; background: rgba(180, 151, 90, 0.1); border-left: 4px solid var(--loreal-accent); border-radius: 0 15px 15px 0; }
+ 
+        /* Boutons d'action */
+        .bio-buttons { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 25px; }
+        .btn-action {
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+            padding: 12px 25px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 30px; color: #fff; font-size: 0.95rem; font-weight: 600;
+            text-decoration: none; position: relative; z-index: 500; cursor: pointer;
+            transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease; width: fit-content;
+        }
+        .btn-action svg { fill: currentColor; width: 18px; height: 18px; pointer-events: none; }
+        .btn-action:hover { background: #fff; color: #000; box-shadow: 0 10px 20px rgba(255,255,255,0.2); }
+       
+        .btn-linkedin { background: #0077b5; border-color: #0077b5; font-size: 1.1rem; padding: 15px 30px; margin-top: 20px;}
+        .btn-linkedin:hover { background: #005582; color: #fff; border-color: #005582; box-shadow: 0 10px 20px rgba(0, 119, 181, 0.4); }
+ 
+        /* --- MINIATURES PHOTOS (GÉNÉRALISÉ) --- */
+        .photo-thumbnails {
+            display: flex; gap: 15px; margin-top: 15px; flex-wrap: wrap;
+        }
+        /* Aligner les photos selon le côté de la timeline */
+        .time-left .photo-thumbnails { justify-content: flex-end; }
+        .time-right .photo-thumbnails { justify-content: flex-start; }
+        .stack-card .photo-thumbnails { justify-content: flex-start; }
+       
+        .photo-link { text-decoration: none; display: block; }
+        .photo-thumb {
+            width: 80px; height: 80px; object-fit: cover; border-radius: 12px; cursor: pointer;
+            border: 2px solid rgba(255,255,255,0.1); transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5); background-color: #222;
+        }
+        .photo-link:hover .photo-thumb {
+            transform: scale(1.1) translateY(-5px);
+            border-color: var(--loreal-accent);
+            box-shadow: 0 10px 25px rgba(180, 151, 90, 0.4);
+        }
+ 
+        /* --- SCROLLYTELLING APTITUDES (STACKING CARDS) --- */
+        .pin-wrap-stack { height: 400vh; position: relative; width: 100vw; margin-left: calc(-50vw + 50%); background: radial-gradient(circle at center, #111 0%, #000 70%); z-index: 100; border-top: 1px solid var(--card-border); border-bottom: 1px solid var(--card-border); }
+        .sticky-stack { position: sticky; top: 0; height: 100vh; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; perspective: 1500px; }
+        .stack-title { font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 800; background: linear-gradient(180deg, #fff, #777); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 40px; position: relative; z-index: 20; opacity: 0; transform: translateY(-50px); transition: all 0.5s ease; }
+        .stack-container { position: relative; width: 100%; max-width: 800px; height: 60vh; display: flex; justify-content: center; align-items: center; }
+        .stack-card { position: absolute; width: 90%; max-width: 650px; height: auto; padding: 40px 50px; background: rgba(25, 25, 28, 0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 30px; box-shadow: 0 30px 60px rgba(0,0,0,0.8); opacity: 0; transform: translateY(100vh) scale(0.8); will-change: transform, opacity, filter; text-align: left; }
+        .stack-icon { font-size: 2.5rem; margin-bottom: 15px; }
+        .stack-card-title { font-size: 1.8rem; color: #fff; margin-bottom: 20px; font-weight: 700; }
+        .stack-list { list-style: none; padding: 0; margin: 0; text-align: left; display: inline-block; width: 100%; }
+        .stack-list li { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 15px; line-height: 1.6; }
+        .stack-list strong { color: #fff; }
+ 
+        /* --- ANIMATIONS CSS NATIVES GLOBALES --- */
+        .reveal { opacity: 0; filter: blur(10px); transition: all 1s cubic-bezier(0.25, 0.1, 0.25, 1); }
+        .reveal.zoom-in { transform: scale(0.7) translateY(50px); }
+        .reveal.slide-up { transform: translateY(100px); }
+        .reveal.flip-left { transform: perspective(1000px) rotateY(-30deg) translateX(-100px); }
+        .reveal.flip-right { transform: perspective(1000px) rotateY(30deg) translateX(100px); }
+        .reveal.formation-left, .reveal.formation-right { transition: all 1.2s cubic-bezier(0.2, 0.9, 0.1, 1.1); opacity: 0; filter: blur(20px); }
+        .reveal.formation-left { transform: perspective(2000px) rotateY(-40deg) rotateX(15deg) translateX(-200px) translateZ(-500px) translateY(100px); transform-origin: center right; }
+        .reveal.formation-right { transform: perspective(2000px) rotateY(40deg) rotateX(15deg) translateX(200px) translateZ(-500px) translateY(100px); transform-origin: center left; }
+        .reveal.formation-left.active, .reveal.formation-right.active, .reveal.active { opacity: 1; filter: blur(0); transform: perspective(2000px) rotateY(0) rotateX(0) translateX(0) translateZ(0) translateY(0) scale(1); }
+ 
+        /* Responsive */
+        @media screen and (max-width: 900px) {
+            .bio-split-layout { flex-direction: column; height: auto; min-height: 100vh; justify-content: center; gap: 30px; padding: 20px; }
+            .bio-image-side { width: 100%; height: 45vh; flex: none; }
+            .bio-text-side { text-align: center; align-items: center; }
+            .bio-title-logo { margin: 0 auto 20px auto; }
+            .award-gold { text-align: left; }
+            .reveal.formation-left, .reveal.formation-right { transform: perspective(1000px) translateY(100px) scale(0.9); }
+            .stack-card { padding: 30px 20px; width: 95%; text-align: center; }
+            .stack-card-title { font-size: 1.5rem; }
+            .stack-list li { font-size: 1rem; }
+            .bio-buttons { justify-content: center; }
+            .stack-card .photo-thumbnails { justify-content: center; }
+            .time-left .photo-thumbnails, .time-right .photo-thumbnails { justify-content: center; }
+        }
+        @media screen and (max-width: 768px) {
+            .timeline-container::after { left: 20px; }
+            .time-item { width: 100%; padding-left: 50px; padding-right: 0; text-align: left; }
+            .time-right { left: 0; }
+            .time-left::after, .time-right::after { left: 11px; }
+            .time-left .tags { justify-content: flex-start; }
+            .bio-text-side .tags { justify-content: center; }
+        }
+    </style>
 </head>
 <body>
-
-    <div id="progress-container">
-        <span id="narrative-text">Mon Portfolio</span>
-        <div id="progress-bar"></div>
-    </div>
-
-    <section class="section" id="hero">
-        <div id="hero-content">
-            <h1 class="section-title reveal zoom-in" style="font-size: clamp(4rem, 12vw, 8rem); margin-bottom: 20px;">Benjamin<br><span style="color: var(--loreal-accent); -webkit-text-fill-color: initial;">Garret</span></h1>
-            <h2 class="reveal slide-up" style="color: var(--accent); font-size: clamp(1.2rem, 3vw, 2rem); font-weight: 400; transition-delay: 0.2s;">Ingénieur Data Science & Physico-Chimie</h2>
-            <p class="reveal slide-up" style="color: var(--text-muted); max-width: 600px; text-align: center; margin-top: 30px; font-size: 1.1rem; line-height: 1.6; transition-delay: 0.4s;">
-                "Enthousiasme, détermination et persévérance."<br>
-                Objectif : Utiliser mes compétences en data science et chimie pour développer des solutions innovantes à l'intersection de ces domaines. Candidat à la <strong>thèse CIFRE : (RÉF.:2026-175050) - THESE : MÉTHODE D'APPRENTISSAGE AUTOMATIQUE POUR LA RECONSTRUCTION D'IMAGE EN TOMOGRAPHIE F/H chez Safran</strong>.
-            </p>
-
-            <div class="scroll-indicator reveal slide-up" style="transition-delay: 0.7s;" onclick="window.scrollBy({top: window.innerHeight * 0.8, behavior: 'smooth'})">
-                <span>Scrollez pour découvrir</span>
-                <div class="scroll-arrow"></div>
-            </div>
-            
-        </div>
-    </section>
-
-    <section class="section">
-        <h2 class="section-title reveal slide-up">Formation</h2>
-        <div class="grid">
-            <div class="glass-card reveal formation-left">
-                <div class="date">Sept 2023 - Aout 2026 </div>
-                <div class="title" style="font-size: 1.8rem;">ECPM, Strasbourg</div>
-                <div class="subtitle" style="color: var(--loreal-accent); font-weight: 600;">Ingénieur Physico-Chimiste - Majeur IA</div>
-                <p class="desc" style="margin-bottom: 20px;">Formation pluridisciplinaire d'excellence à l'intersection de la physico-chimie des matériaux et du numérique. Étude approfondie des modèles statistiques et des outils analytiques modernes.</p>
-                <div class="tags">
-                    <span class="tag">Machine Learning</span><span class="tag">Chimie</span><span class="tag">Matériaux</span>
-                    <span class="tag">Traitement d'images</span><span class="tag">Modèles Moléculaires</span><span class="tag">Data-Mining</span>
-                    <span class="tag">Python</span><span class="tag">R</span><span class="tag">Matlab</span><span class="tag">Bash</span>
-                </div>
-            </div>
-            <div class="glass-card reveal formation-right" style="transition-delay: 0.15s;">
-                <div class="date">Sept 2021 - Juil 2023</div>
-                <div class="title" style="font-size: 1.8rem;">Lycée Kléber, Strasbourg</div>
-                <div class="subtitle" style="color: #fff;">CPGE - PC</div>
-                <p class="desc" style="margin-bottom: 25px;">Formation analytique et scientifique intensive et rigoureuse préparant aux grandes écoles d'ingénieurs.</p>
-                <div class="tags">
-                    <span class="tag">Physique</span><span class="tag">Mathématiques</span><span class="tag">Chimie</span>
-                    <span class="tag">Informatique</span><span class="tag" style="border-color: var(--accent); color: var(--accent);">Mention A</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="section" style="padding-bottom: 0; min-height: auto;">
-        <h2 class="section-title reveal slide-up">Expériences</h2>
-        <div class="timeline-container">
-            
-            <div class="time-item time-left">
-                <div class="glass-card reveal flip-left" style="border-color: var(--loreal-accent);">
-                    <div class="date loreal-date">Septembre 2025 - Aujourd'hui</div>
-                    <div class="title">L'Oréal R&I, Chevilly Larue</div>
-                    <div class="subtitle">Apprenti Data Scientist</div>
-                    <p class="desc">Mission consistant à capitaliser sur les données physico-chimiques afin de décrypter et comprendre en profondeur les mécanismes microbiologiques. Mise en place de modèles statistiques et de tableaux de bord interactifs.</p>
-                    <div class="tags">
-                        <span class="tag">Machine Learning</span><span class="tag">Statistiques</span><span class="tag">Python</span><span class="tag">SQL</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="time-item time-right">
-                <div class="glass-card reveal flip-right">
-                    <div class="date">Avril 2025 - Août 2025</div>
-                    <div class="title">SINTEF, Oslo</div>
-                    <div class="subtitle">Stagiaire Data Scientist</div>
-                    <p class="desc">Automatisation complète du processus d'optimisation de rendement de réactions électrochimiques. Conception d'algorithmes prédictifs et analyse spectroscopique pour maximiser l'efficacité industrielle.</p>
-                    
-                    <div class="photo-thumbnails">
-                        <a href="a6f4f3d5081ee93dd54c7f38d0406e3b.jpg" target="_blank" class="photo-link">
-                            <img src="a6f4f3d5081ee93dd54c7f38d0406e3b.jpg" class="photo-thumb" alt="Stage SINTEF Oslo">
-                        </a>
-                    </div>
-
-                    <div class="tags"><span class="tag">Optimisation Bayésienne</span><span class="tag">Machine Learning</span><span class="tag">Back-End</span><span class="tag">Raman</span><span class="tag">Python</span></div>
-                </div>
-            </div>
-
-        </div>
-    </section>
-
-    <div class="pin-wrap" id="bioplastia-section">
-        <div class="sticky-container" id="bioplastia-sticky">
-            <div class="bio-split-layout">
-                <div class="bio-image-side" id="bio-image-container">
-                    <img src="IMG_0530.jpg" alt="Bioplast'ia Stage">
-                </div>
-                <div class="bio-text-side">
-                    <img src="logo sans fond.png" alt="BioPlast'IA Logo" class="bio-title-logo" id="bio-title">
-                    
-                    <div class="bio-details" id="bio-details">
-                        <div style="color: var(--loreal-accent); font-weight: 700; font-size: 1.1rem; text-transform: uppercase; margin-bottom: 15px;">Sept 2024 - Aujourd'hui | Co-fondateur</div>
-                        <p style="font-size: 1.2rem; color: #fff; line-height: 1.6; margin-bottom: 20px;">
-                            Création d'une solution durable ambitieuse pour substituer les plastifiants toxiques. Conception et développement d'un réseau de neurones prédictif et élaboration de la base de données en partenariat avec Mayfair Village.
-                        </p>
-                        <div class="award-gold">🏆 Prix du Jury - Syntec Ingénieur du Futur 2024</div>
-                        <div class="award-gold">🏆 4ème Prix - Concours Innovation France Chimie</div>
-                        <div class="tags" style="margin-top: 20px; justify-content: flex-start;">
-                            <span class="tag">Deep Learning</span><span class="tag">Gestion de projet</span><span class="tag">Variational Autoencoder</span><span class="tag">Python</span>
-                        </div>
-                        
-                        <div class="bio-buttons">
-                            <a href="https://youtu.be/xfe-iocQwBU?si=9MZBnJGUF33Ie8xd" target="_blank" class="btn-action magnetic-btn">
-                                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                Voir le pitch
-                            </a>
-                            <a href="poster.pptx.pdf" target="_blank" class="btn-action magnetic-btn" style="background: transparent;">
-                                <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-                                Voir le poster
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <section class="section" style="padding-top: 0; min-height: auto; margin-top: -2px;">
-        <div class="timeline-container">
-            <div class="time-item time-left">
-                <div class="glass-card reveal flip-left">
-                    <div class="date">Sept 2024 - Avril 2025</div>
-                    <div class="title">SYENSQO, Strasbourg</div>
-                    <div class="subtitle">Mission Industrielle</div>
-                    <p class="desc">Application de techniques d'analyse de données avancées pour optimiser un processus chimique complexe. Étude et modélisation de paramètres discontinus pour une réaction donnée afin d'en améliorer l'efficience.</p>
-                    <div class="tags"><span class="tag">Data Mining</span><span class="tag">Optimisation Bayésienne</span></div>
-                </div>
-            </div>
-            
-            <div class="time-item time-right">
-                <div class="glass-card reveal flip-right">
-                    <div class="date">Juin 2024 - Juil 2024</div>
-                    <div class="title">CHANEL, Pantin</div>
-                    <div class="subtitle">Stagiaire Data Scientist</div>
-                    <p class="desc">Exploitation structurée de bases de données pour des analyses sensorielles qualitatives. Modélisation et traitement d'informations sous des environnements de développement professionnels.</p>
-                    <p style="color: var(--loreal-accent); font-weight: 600; margin-top: 10px;">🏆 Prix du Public & Jury - Challenge Innovation Hackathon</p>
-                    
-                    <div class="photo-thumbnails">
-                        <a href="IMG_5258.jpg" target="_blank" class="photo-link">
-                            <img src="IMG_5258.jpg" class="photo-thumb" alt="Chanel Hackathon Equipe">
-                        </a>
-                    </div>
-
-                    <div class="tags"><span class="tag">Data-Mining</span><span class="tag">Python</span><span class="tag">SQL</span><span class="tag">RStudio</span><span class="tag">Analyses Sensorielles</span></div>
-                </div>
-            </div>
-            
-            <div class="time-item time-left">
-                <div class="glass-card reveal flip-left">
-                    <div class="date">Août 2022</div>
-                    <div class="title">Journey, Montreuil</div>
-                    <div class="subtitle">Préparateur de commandes</div>
-                    <p class="desc">Mission logistique demandant rigueur et rapidité : préparation de plats et plateaux repas pour livraison.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <div class="pin-wrap-stack" id="aptitudes-stack-section">
-        <div class="sticky-stack">
-            <h2 class="stack-title" id="stack-main-title">Aptitudes & Profil</h2>
-            <div class="stack-container">
-                
-                <div class="stack-card" id="stack-card-1">
-                    <div class="stack-icon">🌍🎓</div>
-                    <div class="stack-card-title">Langues & Certifications</div>
-                    <ul class="stack-list">
-                        <li>🇬🇧 Anglais - <strong>Niveau professionnel</strong></li>
-                        <li>🇪🇸 Espagnol - <strong>Niveau scolaire</strong></li>
-                        <li>🌱 CSR-EXPERT RSE <strong>(Octobre 2024)</strong></li>
-                        <li>🩹 Sauveteur Secouriste du Travail <strong>(Mai 2024)</strong></li>
-                        <li>🚗 Permis B <strong>(Juin 2021)</strong></li>
-                    </ul>
-                </div>
-                
-                <div class="stack-card" id="stack-card-2" style="border-color: var(--accent);">
-                    <div class="stack-icon">🤝⚽</div>
-                    <div class="stack-card-title">Bénévolat & Leadership</div>
-                    <ul class="stack-list">
-                        <li><strong>Vice Président - Association Sportive ECPM</strong> (2024-2025)<br><span style="font-size: 1rem; color: #aaa;">Coach des équipes masculines et féminines de football. Responsable de l'organisation des événements et des tournois sportifs.</span>
-                            <p style="font-size: 0.85rem; color: var(--loreal-accent); margin: 10px 0 5px 0;">Cliquez sur les photos pour les ouvrir :</p>
-                            <div class="photo-thumbnails">
-                                <a href="bfadf185-2c24-410e-8b37-783e54ae36c7.jpg" target="_blank" class="photo-link">
-                                    <img src="bfadf185-2c24-410e-8b37-783e54ae36c7.jpg" class="photo-thumb" alt="AS ECPM">
-                                </a>
-                                <a href="IMG_3538.jpg" target="_blank" class="photo-link">
-                                    <img src="IMG_3538.jpg" class="photo-thumb" alt="AS ECPM Equipe 1">
-                                </a>
-                                <a href="IMG_0574.jpg" target="_blank" class="photo-link">
-                                    <img src="IMG_0574.jpg" class="photo-thumb" alt="AS ECPM Equipe 2">
-                                </a>
-                            </div>
-                        </li>
-                        <li style="margin-top: 20px;"><strong>Secours Catholique</strong> (2019)<br><span style="font-size: 1rem; color: #aaa;">Engagement solidaire avec l'organisation de repas de Noël dédiés aux personnes en situation de précarité.</span></li>
-                    </ul>
-                </div>
-                
-                <div class="stack-card" id="stack-card-3" style="border-color: var(--loreal-accent);">
-                    <div class="stack-icon">🎾✈️🍰</div>
-                    <div class="stack-card-title">Centres d'intérêt</div>
-                    <ul class="stack-list">
-                        <li><strong>Sports :</strong> Pratique du tennis en compétition (13 ans), football (4 ans), gardien de handball (2 ans). Arbitre officiel en championnat universitaire. Plongée sous-marine (Niveau 1).
-                            <div class="photo-thumbnails" style="margin-top: 10px;">
-                                <a href="IMG_0607.jpg" target="_blank" class="photo-link">
-                                    <img src="IMG_0607.jpg" class="photo-thumb" alt="Benjamin Garret - Sport">
-                                </a>
-                                <a href="IMG_1999.JPG" target="_blank" class="photo-link">
-                                    <img src="IMG_1999.JPG" class="photo-thumb" alt="Benjamin Garret - Gardien de Handball">
-                                </a>
-                            </div>
-                        </li>
-                        <li style="margin-top: 15px;"><strong>Voyages :</strong> Immersion culturelle (Norvège, Bali, New York, Québec, Cuba, Thaïlande, Maurice, Martinique, Maroc).</li>
-                        <li style="margin-top: 15px;">
-                            <strong>Pâtisserie :</strong> Création technique et reproduction de mets précis.<br>
-                            <div class="photo-thumbnails" style="margin-top: 10px;">
-                                <a href="IMG_0007.jpg" target="_blank" class="photo-link">
-                                    <img src="IMG_0007.jpg" class="photo-thumb" alt="Tarte aux fraises">
-                                </a>
-                                <a href="1ba59a25-7c1a-4bdf-8627-3943b123740f.JPG" target="_blank" class="photo-link">
-                                    <img src="1ba59a25-7c1a-4bdf-8627-3943b123740f.JPG" class="photo-thumb" alt="Macaron géant">
-                                </a>
-                                <a href="IMG_0979.jpg" target="_blank" class="photo-link">
-                                    <img src="IMG_0979.jpg" class="photo-thumb" alt="Plateaux de mignardises">
-                                </a>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-    <section class="section" id="loreal">
-        <div class="glass-card reveal zoom-in" style="text-align: center; max-width: 800px; border-color: var(--loreal-accent); padding: 60px 40px;">
-            <div class="date" style="color: var(--loreal-accent);">L'Oréal R&I - Septembre 2025</div>
-            <div class="title" style="font-size: 2.5rem; margin-bottom: 20px;">Prêt à innover.</div>
-            <p class="desc" style="font-size: 1.2rem; color: #fff; margin-bottom: 40px;">benjamin.garret@outlook.fr | 06 24 72 59 72</p>
-            
-            <a href="https://www.linkedin.com/in/benjamin-garret-7335081a5" target="_blank" class="btn-action btn-linkedin magnetic-btn">
-                <svg viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-                Mon Profil LinkedIn
-            </a>
-        </div>
-    </section>
-
-    <script>
-        /* =========================================
-           1. BOUTONS MAGNÉTIQUES
-           ========================================= */
-        const magneticBtns = document.querySelectorAll('.magnetic-btn');
-        
-        magneticBtns.forEach(btn => {
-            btn.addEventListener('mousemove', function(e) {
-                const rect = this.getBoundingClientRect();
-                const h = rect.width / 2;
-                const v = rect.height / 2;
-                const x = e.clientX - rect.left - h;
-                const y = e.clientY - rect.top - v;
-                this.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
-                this.style.transition = 'none'; 
-            });
-            btn.addEventListener('mouseleave', function() {
-                this.style.transform = `translate(0px, 0px)`;
-                this.style.transition = 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
-            });
-        });
-
-        /* =========================================
-           2. MOTEUR D'ANIMATION APPARITION (REVEAL)
-           ========================================= */
-        const observerOptions = { root: null, rootMargin: '0px 0px -15% 0px', threshold: 0.1 };
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('active');
-                } else if (!entry.isIntersecting) {
-                    entry.target.classList.remove('active'); 
-                }
-            });
-        }, observerOptions);
-        
-        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-        setTimeout(() => document.querySelectorAll('#hero .reveal').forEach(el => el.classList.add('active')), 100);
-
-        /* =========================================
-           3. BOUCLE DE SCROLLYTELLING (BIOPLASTIA & APTITUDES)
-           ========================================= */
-        const progressBar = document.getElementById('progress-bar');
-        
-        const bioWrap = document.getElementById('bioplastia-section');
-        const bioSticky = document.getElementById('bioplastia-sticky');
-        const bioImageContainer = document.getElementById('bio-image-container');
-        const bioTitle = document.getElementById('bio-title'); 
-        const bioDetails = document.getElementById('bio-details');
-
-        const stackWrap = document.getElementById('aptitudes-stack-section');
-        const stackTitle = document.getElementById('stack-main-title');
-        const c1 = document.getElementById('stack-card-1');
-        const c2 = document.getElementById('stack-card-2');
-        const c3 = document.getElementById('stack-card-3');
-
-        window.addEventListener('scroll', () => {
-            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-            const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            progressBar.style.width = (winScroll / docHeight) * 100 + '%';
-            const vh = window.innerHeight;
-
-            if (bioWrap) {
-                const rectBio = bioWrap.getBoundingClientRect();
-                let progBio = -rectBio.top / (rectBio.height - vh);
-                progBio = Math.max(0, Math.min(1, progBio)); 
-
-                if (progBio >= 0 && progBio <= 1) {
-                    let imgP = Math.max(0, Math.min(1, progBio * 6.6));
-                    bioImageContainer.style.opacity = imgP;
-                    bioImageContainer.style.transform = `scale(${0.9 + (imgP * 0.1)}) translateX(${(1 - imgP) * -50}px)`;
-
-                    let titleP = Math.max(0, Math.min(1, (progBio - 0.15) * 5));
-                    bioTitle.style.opacity = titleP;
-                    bioTitle.style.transform = `translateY(${(1 - titleP) * 50}px)`;
-
-                    let detailsP = Math.max(0, Math.min(1, (progBio - 0.35) * 5));
-                    bioDetails.style.opacity = detailsP;
-                    bioDetails.style.transform = `translateY(${(1 - detailsP) * 50}px)`;
-
-                    if (progBio > 0.8) {
-                        let pivotP = (progBio - 0.8) * 5; 
-                        bioSticky.style.transform = `perspective(1500px) rotateX(${pivotP * 45}deg) scale(${1 - pivotP * 0.3}) translateY(${pivotP * -100}px)`;
-                        bioSticky.style.opacity = 1 - pivotP;
-                    } else {
-                        bioSticky.style.transform = `perspective(1500px) rotateX(0deg) scale(1) translateY(0)`;
-                        bioSticky.style.opacity = 1;
-                    }
-                }
-            }
-
-            if (stackWrap) {
-                const rectStack = stackWrap.getBoundingClientRect();
-                let progStack = -rectStack.top / (rectStack.height - vh);
-                progStack = Math.max(0, Math.min(1, progStack));
-
-                if (progStack > 0.02) {
-                    stackTitle.style.opacity = 1;
-                    stackTitle.style.transform = 'translateY(0)';
-                } else {
-                    stackTitle.style.opacity = 0;
-                    stackTitle.style.transform = 'translateY(-50px)';
-                }
-
-                let p1 = Math.max(0, Math.min(1, progStack / 0.33));
-                let s1 = 0.8 + (0.2 * p1); let y1 = (1 - p1) * vh; let o1 = p1; let b1 = 0;
-                if (progStack > 0.33) {
-                    let over1 = Math.max(0, Math.min(1, (progStack - 0.33) / 0.33));
-                    s1 = 1 - (0.05 * over1); y1 = -(over1 * 40); b1 = over1 * 8; o1 = 1 - (over1 * 0.4); 
-                }
-                c1.style.transform = `translateY(${y1}px) scale(${s1})`; c1.style.opacity = o1; c1.style.filter = `blur(${b1}px)`; c1.style.zIndex = 10;
-
-                let p2 = Math.max(0, Math.min(1, (progStack - 0.33) / 0.33));
-                let s2 = 0.8 + (0.2 * p2); let y2 = (1 - p2) * vh; let o2 = p2; let b2 = 0;
-                if (progStack > 0.66) {
-                    let over2 = Math.max(0, Math.min(1, (progStack - 0.66) / 0.34));
-                    s2 = 1 - (0.05 * over2); y2 = -(over2 * 40); b2 = over2 * 8; o2 = 1 - (over2 * 0.4);
-                }
-                c2.style.transform = `translateY(${y2}px) scale(${s2})`; c2.style.opacity = o2; c2.style.filter = `blur(${b2}px)`; c2.style.zIndex = 20;
-
-                let p3 = Math.max(0, Math.min(1, (progStack - 0.66) / 0.34));
-                let s3 = 0.8 + (0.2 * p3); let y3 = (1 - p3) * vh; let o3 = p3;
-                c3.style.transform = `translateY(${y3}px) scale(${s3})`; c3.style.opacity = o3; c3.style.zIndex = 30;
-            }
-        });
-    </script>
+ 
+    <div id="progress-container">
+        <span id="narrative-text">Mon Portfolio</span>
+        <div id="progress-bar"></div>
+    </div>
+ 
+    <section class="section" id="hero">
+        <div id="hero-content">
+            <h1 class="section-title reveal zoom-in" style="font-size: clamp(4rem, 12vw, 8rem); margin-bottom: 20px;">Benjamin<br><span style="color: var(--loreal-accent); -webkit-text-fill-color: initial;">Garret</span></h1>
+            <h2 class="reveal slide-up" style="color: var(--accent); font-size: clamp(1.2rem, 3vw, 2rem); font-weight: 400; transition-delay: 0.2s;">Ingénieur Data Science & Physico-Chimie</h2>
+            <p class="reveal slide-up" style="color: var(--text-muted); max-width: 600px; text-align: center; margin-top: 30px; font-size: 1.1rem; line-height: 1.6; transition-delay: 0.4s;">
+                "Enthousiasme, détermination et persévérance."<br>
+                Objectif : Utiliser mes compétences en data science et chimie pour développer des solutions innovantes à l'intersection de ces domaines.
+                            <strong>Candidat au Doctorat CIFRE – Ingénieur de Recherche DDIT</strong>
+            </p>
+ 
+            <div class="scroll-indicator reveal slide-up" style="transition-delay: 0.7s;" onclick="window.scrollBy({top: window.innerHeight * 0.8, behavior: 'smooth'})">
+                <span>Scrollez pour découvrir</span>
+                <div class="scroll-arrow"></div>
+            </div>
+           
+        </div>
+    </section>
+ 
+    <section class="section">
+        <h2 class="section-title reveal slide-up">Formation</h2>
+        <div class="grid">
+            <div class="glass-card reveal formation-left">
+                <div class="date">Sept 2023 - Août 2026 </div>
+                <div class="title" style="font-size: 1.8rem;">ECPM, Strasbourg</div>
+                <div class="subtitle" style="color: var(--loreal-accent); font-weight: 600;">Ingénieur Physico-Chimiste - Majeure IA</div>
+                <p class="desc" style="margin-bottom: 20px;">Formation pluridisciplinaire d'excellence à l'intersection de la physico-chimie des matériaux et du numérique. Étude approfondie des modèles statistiques et des outils analytiques modernes.</p>
+                <div class="tags">
+                    <span class="tag">Machine Learning</span><span class="tag">Chimie</span><span class="tag">Matériaux</span>
+                    <span class="tag">Traitement d'images</span><span class="tag">Modèles Moléculaires</span><span class="tag">Data-Mining</span>
+                    <span class="tag">Python</span><span class="tag">R</span><span class="tag">Matlab</span><span class="tag">Bash</span>
+                </div>
+            </div>
+            <div class="glass-card reveal formation-right" style="transition-delay: 0.15s;">
+                <div class="date">Sept 2021 - Juil 2023</div>
+                <div class="title" style="font-size: 1.8rem;">Lycée Kléber, Strasbourg</div>
+                <div class="subtitle" style="color: #fff;">CPGE - PC</div>
+                <p class="desc" style="margin-bottom: 25px;">Formation analytique et scientifique intensive et rigoureuse préparant aux grandes écoles d'ingénieurs.</p>
+                <div class="tags">
+                    <span class="tag">Physique</span><span class="tag">Mathématiques</span><span class="tag">Chimie</span>
+                    <span class="tag">Informatique</span><span class="tag" style="border-color: var(--accent); color: var(--accent);">Mention A</span>
+                </div>
+            </div>
+        </div>
+    </section>
+ 
+    <section class="section" style="padding-bottom: 0; min-height: auto;">
+        <h2 class="section-title reveal slide-up">Expériences</h2>
+        <div class="timeline-container">
+           
+            <div class="time-item time-left">
+                <div class="glass-card reveal flip-left" style="border-color: var(--loreal-accent);">
+                    <div class="date loreal-date">Septembre 2025 - Aujourd'hui</div>
+                    <div class="title">L'Oréal R&I, Chevilly Larue</div>
+                    <div class="subtitle">Apprenti Data Scientist</div>
+                    <p class="desc">Mission consistant à capitaliser sur les données physico-chimiques afin de décrypter et comprendre en profondeur les mécanismes microbiologiques. Mise en place de modèles statistiques et de tableaux de bord interactifs.</p>
+                    <div class="tags">
+                        <span class="tag">Machine Learning</span><span class="tag">Statistiques</span><span class="tag">Python</span><span class="tag">SQL</span>
+                    </div>
+                </div>
+            </div>
+ 
+            <div class="time-item time-right">
+                <div class="glass-card reveal flip-right">
+                    <div class="date">Avril 2025 - Août 2025</div>
+                    <div class="title">SINTEF, Oslo</div>
+                    <div class="subtitle">Stagiaire Data Scientist</div>
+                    <p class="desc">Automatisation complète du processus d'optimisation de rendement de réactions électrochimiques. Conception d'algorithmes prédictifs et analyse spectroscopique pour maximiser l'efficacité industrielle.</p>
+                   
+                    <div class="photo-thumbnails">
+                        <a href="a6f4f3d5081ee93dd54c7f38d0406e3b.jpg" target="_blank" class="photo-link">
+                            <img src="a6f4f3d5081ee93dd54c7f38d0406e3b.jpg" class="photo-thumb" alt="Stage SINTEF Oslo">
+                        </a>
+                    </div>
+ 
+                    <div class="tags"><span class="tag">Optimisation Bayésienne</span><span class="tag">Machine Learning</span><span class="tag">Back-End</span><span class="tag">Raman</span><span class="tag">Python</span></div>
+                </div>
+            </div>
+ 
+        </div>
+    </section>
+ 
+    <div class="pin-wrap" id="bioplastia-section">
+        <div class="sticky-container" id="bioplastia-sticky">
+            <div class="bio-split-layout">
+                <div class="bio-image-side" id="bio-image-container">
+                    <img src="IMG_0530.JPG" alt="Bioplast'ia Stage">
+                </div>
+                <div class="bio-text-side">
+                    <img src="logo sans fond.png" alt="BioPlast'IA Logo" class="bio-title-logo" id="bio-title">
+                   
+                    <div class="bio-details" id="bio-details">
+                        <div style="color: var(--loreal-accent); font-weight: 700; font-size: 1.1rem; text-transform: uppercase; margin-bottom: 15px;">Sept 2024 - Aujourd'hui | Co-fondateur</div>
+                        <p style="font-size: 1.2rem; color: #fff; line-height: 1.6; margin-bottom: 20px;">
+                            Création d'une solution durable ambitieuse pour substituer les plastifiants toxiques. Conception et développement d'un réseau de neurones prédictif et élaboration de la base de données en partenariat avec Mayfair Village.
+                        </p>
+                        <div class="award-gold">
+￼
+ Prix du Jury - Syntec Ingénieur du Futur 2024</div>
+                        <div class="award-gold">
+￼
+ 4ème Prix - Concours Innovation France Chimie</div>
+                        <div class="tags" style="margin-top: 20px; justify-content: flex-start;">
+                            <span class="tag">Deep Learning</span><span class="tag">Gestion de projet</span><span class="tag">Variational Autoencoder</span><span class="tag">Python</span>
+                        </div>
+                       
+                        <div class="bio-buttons">
+                            <a href=https://youtu.be/xfe-iocQwBU?si=9MZBnJGUF33Ie8xd target="_blank" class="btn-action magnetic-btn">
+                                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                Voir le pitch
+                            </a>
+                            <a href="poster.pptx.pdf" target="_blank" class="btn-action magnetic-btn" style="background: transparent;">
+                                <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                                Voir le poster
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+ 
+    <section class="section" style="padding-top: 0; min-height: auto; margin-top: -2px;">
+        <div class="timeline-container">
+            <div class="time-item time-left">
+                <div class="glass-card reveal flip-left">
+                    <div class="date">Sept 2024 - Avril 2025</div>
+                    <div class="title">SYENSQO, Strasbourg</div>
+                    <div class="subtitle">Mission Industrielle</div>
+                    <p class="desc">Application de techniques d'analyse de données avancées pour optimiser un processus chimique complexe. Étude et modélisation de paramètres discontinus pour une réaction donnée afin d'en améliorer l'efficience.</p>
+                    <div class="tags"><span class="tag">Data Mining</span><span class="tag">Optimisation Bayésienne</span></div>
+                </div>
+            </div>
+           
+            <div class="time-item time-right">
+                <div class="glass-card reveal flip-right">
+                    <div class="date">Juin 2024 - Juil 2024</div>
+                    <div class="title">CHANEL, Pantin</div>
+                    <div class="subtitle">Stagiaire Data Scientist</div>
+                    <p class="desc">Exploitation structurée de bases de données pour des analyses sensorielles qualitatives. Modélisation et traitement d'informations sous des environnements de développement professionnels.</p>
+                    <p style="color: var(--loreal-accent); font-weight: 600; margin-top: 10px;">
+￼
+ Prix du Public & Jury - Challenge Innovation Hackathon</p>
+                   
+                    <div class="photo-thumbnails">
+                        <a href="IMG_5258.jpg" target="_blank" class="photo-link">
+                            <img src="IMG_5258.jpg" class="photo-thumb" alt="Chanel Hackathon Equipe">
+                        </a>
+                    </div>
+ 
+                    <div class="tags"><span class="tag">Data-Mining</span><span class="tag">Python</span><span class="tag">SQL</span><span class="tag">RStudio</span><span class="tag">Analyses Sensorielles</span></div>
+                </div>
+            </div>
+           
+            <div class="time-item time-left">
+                <div class="glass-card reveal flip-left">
+                    <div class="date">Août 2022</div>
+                    <div class="title">Journey, Montreuil</div>
+                    <div class="subtitle">Préparateur de commandes</div>
+                    <p class="desc">Mission logistique demandant rigueur et rapidité : préparation de plats et plateaux repas pour livraison.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+ 
+    <div class="pin-wrap-stack" id="aptitudes-stack-section">
+        <div class="sticky-stack">
+            <h2 class="stack-title" id="stack-main-title">Aptitudes & Profil</h2>
+            <div class="stack-container">
+               
+                <div class="stack-card" id="stack-card-1">
+                    <div class="stack-icon">
+￼
+￼
+</div>
+                    <div class="stack-card-title">Langues & Certifications</div>
+                    <ul class="stack-list">
+                        <li>
+￼
+ Anglais - <strong>Niveau professionnel</strong></li>
+                        <li>
+￼
+ Espagnol - <strong>Niveau scolaire</strong></li>
+                        <li>
+￼
+ CSR-EXPERT RSE <strong>(Octobre 2024)</strong></li>
+                        <li>
+￼
+ Sauveteur Secouriste du Travail <strong>(Mai 2024)</strong></li>
+                        <li>
+￼
+ Permis B <strong>(Juin 2021)</strong></li>
+                    </ul>
+                </div>
+               
+                <div class="stack-card" id="stack-card-2" style="border-color: var(--accent);">
+                    <div class="stack-icon">
+￼
+￼
+</div>
+                    <div class="stack-card-title">Bénévolat & Leadership</div>
+                    <ul class="stack-list">
+                        <li><strong>Vice-Président - Association Sportive ECPM</strong> (2024-2025)<br><span style="font-size: 1rem; color: #aaa;">Coach des équipes masculines et féminines de football. Responsable de l'organisation des événements et des tournois sportifs.</span>
+                            <p style="font-size: 0.85rem; color: var(--loreal-accent); margin: 10px 0 5px 0;">Cliquez sur les photos pour les ouvrir :</p>
+                            <div class="photo-thumbnails">
+                                <a href="bfadf185-2c24-410e-8b37-783e54ae36c7.JPG" target="_blank" class="photo-link">
+                                    <img src="bfadf185-2c24-410e-8b37-783e54ae36c7.JPG" class="photo-thumb" alt="AS ECPM">
+                                </a>
+                                <a href="IMG_3538.JPG" target="_blank" class="photo-link">
+                                    <img src="IMG_3538.JPG" class="photo-thumb" alt="AS ECPM Equipe 1">
+                                </a>
+                                <a href="IMG_0574.JPG" target="_blank" class="photo-link">
+                                    <img src="IMG_0574.JPG" class="photo-thumb" alt="AS ECPM Equipe 2">
+                                </a>
+                            </div>
+                        </li>
+                        <li style="margin-top: 20px;"><strong>Secours Catholique</strong> (2019)<br><span style="font-size: 1rem; color: #aaa;">Engagement solidaire avec l'organisation de repas de Noël dédiés aux personnes en situation de précarité.</span></li>
+                    </ul>
+                </div>
+               
+                <div class="stack-card" id="stack-card-3" style="border-color: var(--loreal-accent);">
+                    <div class="stack-icon">
+￼
+￼
+￼
+</div>
+                    <div class="stack-card-title">Centres d'intérêt</div>
+                    <ul class="stack-list">
+                        <li><strong>Sports :</strong> Pratique du tennis en compétition (13 ans), football (4 ans), gardien de handball (2 ans). Arbitre officiel en championnat universitaire. Plongée sous-marine (Niveau 1).
+                            <div class="photo-thumbnails" style="margin-top: 10px;">
+                                <a href="IMG_0607.jpg" target="_blank" class="photo-link">
+                                    <img src="IMG_0607.jpg" class="photo-thumb" alt="Benjamin Garret - Sport">
+                                </a>
+                                <a href="IMG_1999.JPG" target="_blank" class="photo-link">
+                                    <img src="IMG_1999.JPG" class="photo-thumb" alt="Benjamin Garret - Gardien de Handball">
+                                </a>
+                            </div>
+                        </li>
+                        <li style="margin-top: 15px;"><strong>Voyages :</strong> Immersion culturelle (Norvège, Bali, New York, Québec, Cuba, Thaïlande, Maurice, Martinique, Maroc).</li>
+                        <li style="margin-top: 15px;">
+                            <strong>Pâtisserie :</strong> Création technique et reproduction de mets précis.<br>
+                            <div class="photo-thumbnails" style="margin-top: 10px;">
+                                <a href="IMG_0007.JPG" target="_blank" class="photo-link">
+                                    <img src="IMG_0007.JPG" class="photo-thumb" alt="Tarte aux fraises">
+                                </a>
+                                <a href="1ba59a25-7c1a-4bdf-8627-3943b123740f.JPG" target="_blank" class="photo-link">
+                                    <img src="1ba59a25-7c1a-4bdf-8627-3943b123740f.JPG" class="photo-thumb" alt="Macaron géant">
+                                </a>
+                                <a href="IMG_0979.jpg" target="_blank" class="photo-link">
+                                    <img src="IMG_0979.jpg" class="photo-thumb" alt="Plateaux de mignardises">
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+ 
+            </div>
+        </div>
+    </div>
+ 
+    <section class="section" id="loreal">
+        <div class="glass-card reveal zoom-in" style="text-align: center; max-width: 800px; border-color: var(--loreal-accent); padding: 60px 40px;">
+            <div class="date" style="color: var(--loreal-accent);">L'Oréal R&I - Septembre 2025</div>
+            <div class="title" style="font-size: 2.5rem; margin-bottom: 20px;">Prêt à innover.</div>
+            <p class="desc" style="font-size: 1.2rem; color: #fff; margin-bottom: 40px;">benjamin.garret@outlook.fr | 06 24 72 59 72</p>
+           
+            <a href=https://www.linkedin.com/in/benjamin-garret-7335081a5 target="_blank" class="btn-action btn-linkedin magnetic-btn">
+                <svg viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                Mon Profil LinkedIn
+            </a>
+        </div>
+    </section>
+ 
+    <script>
+        /* =========================================
+           1. BOUTONS MAGNÉTIQUES
+           ========================================= */
+        const magneticBtns = document.querySelectorAll('.magnetic-btn');
+       
+        magneticBtns.forEach(btn => {
+            btn.addEventListener('mousemove', function(e) {
+                const rect = this.getBoundingClientRect();
+                const h = rect.width / 2;
+                const v = rect.height / 2;
+                const x = e.clientX - rect.left - h;
+                const y = e.clientY - rect.top - v;
+                this.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
+                this.style.transition = 'none';
+            });
+            btn.addEventListener('mouseleave', function() {
+                this.style.transform = `translate(0px, 0px)`;
+                this.style.transition = 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
+            });
+        });
+ 
+        /* =========================================
+           2. MOTEUR D'ANIMATION APPARITION (REVEAL)
+           ========================================= */
+        const observerOptions = { root: null, rootMargin: '0px 0px -15% 0px', threshold: 0.1 };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                } else if (!entry.isIntersecting) {
+                    entry.target.classList.remove('active');
+                }
+            });
+        }, observerOptions);
+       
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        setTimeout(() => document.querySelectorAll('#hero .reveal').forEach(el => el.classList.add('active')), 100);
+ 
+        /* =========================================
+           3. BOUCLE DE SCROLLYTELLING (BIOPLASTIA & APTITUDES)
+           ========================================= */
+        const progressBar = document.getElementById('progress-bar');
+       
+        const bioWrap = document.getElementById('bioplastia-section');
+        const bioSticky = document.getElementById('bioplastia-sticky');
+        const bioImageContainer = document.getElementById('bio-image-container');
+        const bioTitle = document.getElementById('bio-title');
+        const bioDetails = document.getElementById('bio-details');
+ 
+        const stackWrap = document.getElementById('aptitudes-stack-section');
+        const stackTitle = document.getElementById('stack-main-title');
+        const c1 = document.getElementById('stack-card-1');
+        const c2 = document.getElementById('stack-card-2');
+        const c3 = document.getElementById('stack-card-3');
+ 
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            progressBar.style.width = (winScroll / docHeight) * 100 + '%';
+            const vh = window.innerHeight;
+ 
+            if (bioWrap) {
+                const rectBio = bioWrap.getBoundingClientRect();
+                let progBio = -rectBio.top / (rectBio.height - vh);
+                progBio = Math.max(0, Math.min(1, progBio));
+ 
+                if (progBio >= 0 && progBio <= 1) {
+                    let imgP = Math.max(0, Math.min(1, progBio * 6.6));
+                    bioImageContainer.style.opacity = imgP;
+                    bioImageContainer.style.transform = `scale(${0.9 + (imgP * 0.1)}) translateX(${(1 - imgP) * -50}px)`;
+ 
+                    let titleP = Math.max(0, Math.min(1, (progBio - 0.15) * 5));
+                    bioTitle.style.opacity = titleP;
+                    bioTitle.style.transform = `translateY(${(1 - titleP) * 50}px)`;
+ 
+                    let detailsP = Math.max(0, Math.min(1, (progBio - 0.35) * 5));
+                    bioDetails.style.opacity = detailsP;
+                    bioDetails.style.transform = `translateY(${(1 - detailsP) * 50}px)`;
+ 
+                    if (progBio > 0.8) {
+                        let pivotP = (progBio - 0.8) * 5;
+                        bioSticky.style.transform = `perspective(1500px) rotateX(${pivotP * 45}deg) scale(${1 - pivotP * 0.3}) translateY(${pivotP * -100}px)`;
+                        bioSticky.style.opacity = 1 - pivotP;
+                    } else {
+                        bioSticky.style.transform = `perspective(1500px) rotateX(0deg) scale(1) translateY(0)`;
+                        bioSticky.style.opacity = 1;
+                    }
+                }
+            }
+ 
+            if (stackWrap) {
+                const rectStack = stackWrap.getBoundingClientRect();
+                let progStack = -rectStack.top / (rectStack.height - vh);
+                progStack = Math.max(0, Math.min(1, progStack));
+ 
+                if (progStack > 0.02) {
+                    stackTitle.style.opacity = 1;
+                    stackTitle.style.transform = 'translateY(0)';
+                } else {
+                    stackTitle.style.opacity = 0;
+                    stackTitle.style.transform = 'translateY(-50px)';
+                }
+ 
+                let p1 = Math.max(0, Math.min(1, progStack / 0.33));
+                let s1 = 0.8 + (0.2 * p1); let y1 = (1 - p1) * vh; let o1 = p1; let b1 = 0;
+                if (progStack > 0.33) {
+                    let over1 = Math.max(0, Math.min(1, (progStack - 0.33) / 0.33));
+                    s1 = 1 - (0.05 * over1); y1 = -(over1 * 40); b1 = over1 * 8; o1 = 1 - (over1 * 0.4);
+                }
+                c1.style.transform = `translateY(${y1}px) scale(${s1})`; c1.style.opacity = o1; c1.style.filter = `blur(${b1}px)`; c1.style.zIndex = 10;
+ 
+                let p2 = Math.max(0, Math.min(1, (progStack - 0.33) / 0.33));
+                let s2 = 0.8 + (0.2 * p2); let y2 = (1 - p2) * vh; let o2 = p2; let b2 = 0;
+                if (progStack > 0.66) {
+                    let over2 = Math.max(0, Math.min(1, (progStack - 0.66) / 0.34));
+                    s2 = 1 - (0.05 * over2); y2 = -(over2 * 40); b2 = over2 * 8; o2 = 1 - (over2 * 0.4);
+                }
+                c2.style.transform = `translateY(${y2}px) scale(${s2})`; c2.style.opacity = o2; c2.style.filter = `blur(${b2}px)`; c2.style.zIndex = 20;
+ 
+                let p3 = Math.max(0, Math.min(1, (progStack - 0.66) / 0.34));
+                let s3 = 0.8 + (0.2 * p3); let y3 = (1 - p3) * vh; let o3 = p3;
+                c3.style.transform = `translateY(${y3}px) scale(${s3})`; c3.style.opacity = o3; c3.style.zIndex = 30;
+            }
+        });
+    </script>
 </body>
 </html>
